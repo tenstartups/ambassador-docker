@@ -12,4 +12,4 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 RUN apk --update add socat
 
 # Define command
-CMD	env | grep _TCP= | sed 's/.*_PORT_\([0-9]*\)_TCP=tcp:\/\/\(.*\):\(.*\)/socat TCP4-LISTEN:\1,fork,reuseaddr TCP4:\2:\3 \&/' | sh && sleep 3153600000
+CMD	socat TCP4-LISTEN:${TCP_LISTEN_PORT},fork,reuseaddr TCP4:${TCP_TARGET_HOST}:${TCP_TARGET_PORT}
