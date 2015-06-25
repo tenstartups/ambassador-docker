@@ -9,7 +9,7 @@ FROM gliderlabs/alpine:latest
 MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 
 # Install socat
-RUN apk --update add socat
+RUN apk --update add socat openssh
 
 # Add files
 COPY ./tunnel.sh /usr/local/bin/tunnel
