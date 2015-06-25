@@ -30,16 +30,14 @@ else
   REMOTE_PORT=$(echo $ssh_tunnel_spec | cut -d' ' -f3)
 
   # Open secure tunnel with SSH
-  if [ -f "${SSH_KEY_FILE}" ]; then
-    echo "Opening secure tunnel *:${LOCAL_PORT} -> ${REMOTE_HOST}:${REMOTE_PORT} with key"
-    exec usr/bin/ssh -T -N \
-      -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=false -o ServerAliveInterval=30 -i "${SSH_KEY_FILE}" \
-      -L *:${LOCAL_PORT}:${REMOTE_HOST}:${REMOTE_PORT} ${SSH_USER}@${REMOTE_HOST}
-  else
-    echo "Opening secure tunnel *:${LOCAL_PORT} -> ${REMOTE_HOST}:${REMOTE_PORT}"
-    exec usr/bin/ssh -T -N \
-      -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=false -o ServerAliveInterval=30 \
-      -L *:${LOCAL_PORT}:${REMOTE_HOST}:${REMOTE_PORT} ${SSH_USER}@${REMOTE_HOST}
+  ssh_command="usr/bin/ssh -T -N -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=false -o ServerAliveInterval=30"
+  if [ -f "${SSH_USER}" ]; then
+    ssh_command="$ssh_command -o \"${SSH_USER}\""
   fi
+  if [ -f "${SSH_KEY_FILE}" ]; then
+    ssh_command="$ssh_command -i \"${SSH_KEY_FILE}\""
+  fi
+  ssh_command="$ssh_command -L *:${LOCAL_PORT}:${REMOTE_HOST}:${REMOTE_PORT} ${REMOTE_HOST}"
+  exec $ssh_command
 
 fi
