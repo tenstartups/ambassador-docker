@@ -2,8 +2,8 @@
 set -e
 
 # Look for a TCP and SSH tunnel spec in the environment
-tcp_tunnel_spec=$(env | grep _TCP= | head | sed 's/.*_PORT_\([0-9]*\)_TCP=\(tcp:\/\/\)?\(.*\):\([0-9]*\)/echo \1 \3 \4/' | sh)
-ssh_tunnel_spec=$(env | grep _SSH= | head | sed 's/.*_PORT_\([0-9]*\)_SSH=\(ssh:\/\/\)?\(.*\):\([0-9]*\)/echo \1 \3 \4/' | sh)
+tcp_tunnel_spec=$(env | grep _TCP= | head | sed --regexp-extended 's/.*_PORT_([0-9]+)_TCP=(tcp:\/\/)?(.+):([0-9]+)/echo \1 \3 \4/' | sh)
+ssh_tunnel_spec=$(env | grep _SSH= | head | sed --regexp-extended 's/.*_PORT_([0-9]+)_SSH=(ssh:\/\/)?(.+):([0-9]+)/echo \1 \3 \4/' | sh)
 
 # Return if no tunnel spec found
 if [ -z "$tcp_tunnel_spec" ] && [ -z "$ssh_tunnel_spec" ]; then
