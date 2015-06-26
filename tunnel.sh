@@ -2,8 +2,8 @@
 set -u
 
 # Load environment variables
-TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([A-Z]+)_([0-9]+)=(.+):([0-9]+)"
-SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([A-Z]+)_([0-9]+)=(.+):(.+)@(.+):([0-9]+):([0-9]+)"
+TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([A-Z]+_([0-9]+))=(.+):([0-9]+)"
+SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([A-Z]+_([0-9]+))=(.+):(.+)@(.+):([0-9]+):([0-9]+)"
 SSH_SERVER_CHECK_INTERVAL=${SSH_SERVER_CHECK_INTERVAL:-30}
 
 # Function to open a TCP tunnel with socat
