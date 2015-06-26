@@ -1,10 +1,14 @@
 #! /bin/bash
-set -u
+set -e
 
-# Load environment variables
+# Set environment variables
 TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([A-Z]+_([0-9]+))=(.+):([0-9]+)"
-SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([A-Z]+_([0-9]+))=(.+):(.+)@(.+):([0-9]+):([0-9]+)"
+SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([A-Z]+_([0-9]+))=(.+):([0-9]+)"
+
+SSH_REMOTE_PORT=${SSH_REMOTE_PORT:-2222}
+SSH_IDENTITY_FILE=${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}
 SSH_SERVER_CHECK_INTERVAL=${SSH_SERVER_CHECK_INTERVAL:-30}
+SSH_USER=${SSH_USER:-root}
 
 # Function to open a TCP tunnel with socat
 tcp_tunnel() {
@@ -28,23 +32,24 @@ ssh_tunnel() {
   tunnel_name=$1
   local_port=$2
   remote_host=$3
-  ssh_port=$4
-  remote_port=$5
-  user=$6
-  password_or_identity_file=$7
+  remote_port=$4
   exit_loop=0
   trap 'exit_loop=1' SIGINT SIGQUIT
-  command="/usr/bin/ssh -T -N -o StrictHostKeyChecking=false -o ServerAliveInterval=${SSH_SERVER_CHECK_INTERVAL}"
-  command="$command -o User=$user"
-  command="$command -o Port=$ssh_port"
-  if [ -f "$password_or_identity_file" ]; then
-    command="$command -o PasswordAuthentication=false -o IdentityFile=\"$password_or_identity_file\""
-    echo "Opening $tunnel_name SSH tunnel (*:$local_port -> $remote_host:$remote_port) with user $user and identity $password_or_identity_file"
+  command="/usr/bin/ssh -T -N"
+  command="$command -o StrictHostKeyChecking=false"
+  command="$command -o ServerAliveInterval=${SSH_SERVER_CHECK_INTERVAL}"
+  command="$command -o Port=${SSH_REMOTE_PORT}"
+  command="$command -o User=${SSH_USER}"
+  if ! [ -z "${SSH_PASSWORD}" ]; then
+    command="/usr/bin/sshpass -p \"${SSH_PASSWORD}\" $command"
   else
-    command="/usr/bin/sshpass -p \"$password_or_identity_file\" $command"
-    echo "Opening $tunnel_name SSH tunnel (*:$local_port -> $remote_host:$remote_port) with user $user and password"
+    command="$command -o PasswordAuthentication=false"
+  fi
+  if [ -f "${SSH_IDENTITY_FILE}" ]; then
+    command="$command -o IdentityFile=\"${SSH_IDENTITY_FILE}\""
   fi
   command="$command -L *:$local_port:$remote_host:$remote_port $remote_host"
+  echo "Opening $tunnel_name SSH tunnel (*:$local_port -> $remote_host:$remote_port)"
   until $command; do
     if [ "$exit_loop" = 1 ]; then break; fi
     echo "$tunnel_name SSH tunnel exited with code $?.  Restarting..." >&2
