@@ -18,7 +18,7 @@ tcp_tunnel() {
   remote_port=$4
   exit_loop=0
   trap 'exit_loop=1' SIGINT SIGQUIT
-  command="/usr/bin/socat -d -d TCP4-LISTEN:$local_port,fork,reuseaddr TCP4:$remote_host:$remote_port"
+  command="/usr/bin/socat -d TCP4-LISTEN:$local_port,fork,reuseaddr TCP4:$remote_host:$remote_port"
   echo "Opening $tunnel_name TCP tunnel (*:$local_port -> $remote_host:$remote_port)"
   until $command; do
     if [ "$exit_loop" = 1 ]; then break; fi
