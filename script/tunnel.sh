@@ -21,7 +21,7 @@ tcp_tunnel() {
   command="/usr/bin/socat -d TCP4-LISTEN:$local_port,fork,reuseaddr TCP4:$remote_host:$remote_port"
   echo "Opening $tunnel_name TCP tunnel (*:$local_port -> $remote_host:$remote_port)"
   until $command; do
-    if [ "$gracefully_exit" = 'true' ]; then break; fi
+    if [ "$gracefully_exit" = "true" ]; then break; fi
     echo "$tunnel_name TCP tunnel exited with code $?.  Restarting..." >&2
     sleep 1
   done
@@ -36,7 +36,7 @@ ssh_tunnel() {
   gracefully_exit=false
   trap 'gracefully_exit=true' SIGINT SIGQUIT
   command="/usr/bin/ssh -T -N"
-  if [ "${SSH_DEBUG}" = 'true' ]; then
+  if [ "${SSH_DEBUG}" = "true" ]; then
     command="$command -v"
   fi
   command="$command -o StrictHostKeyChecking=false"
@@ -54,7 +54,7 @@ ssh_tunnel() {
   command="$command -L *:$local_port:$remote_host:$remote_port $remote_host"
   echo "Opening $tunnel_name SSH tunnel (*:$local_port -> $remote_host:$remote_port)"
   until $command; do
-    if [ "$gracefully_exit" = 'true' ]; then break; fi
+    if [ "$gracefully_exit" = "true" ]; then break; fi
     echo "$tunnel_name SSH tunnel exited with code $?.  Restarting..." >&2
     sleep 1
   done
