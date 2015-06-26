@@ -4,7 +4,7 @@ set -e
 # Look for known command aliases
 case "$1" in
   "client" ) shift ; command="/usr/local/bin/tunnel" ;;
-  "server" ) shift ; command="/usr/sbin/sshd -D" ;;
+  "server" ) shift ; command="/usr/local/bin/ssh-daemon" ;;
   * )        command="$@";;
 esac
 
