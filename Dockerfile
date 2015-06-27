@@ -17,7 +17,7 @@ ENV \
 RUN apk --update add bash nano openssh socat sshpass
 
 # Allow root login for sshd
-RUN sed -i 's/#PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+#RUN sed -i 's/#PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # Define working directory.
 WORKDIR /home/docker
@@ -28,7 +28,8 @@ ADD . /home/docker
 # Copy scripts and configuration into place.
 RUN \
   find ./script -regex '^.*\.sh\s*$' -exec bash -c 'f=`basename "{}"`; mv -v "{}" "/usr/local/bin/${f%.*}"' \; && \
-  rm -rf ./script
+  rm -rf ./script && \
+  mv -v ./sshd_config /etc/ssh
 
 # Set the entrypoint script.
 ENTRYPOINT ["./entrypoint"]
