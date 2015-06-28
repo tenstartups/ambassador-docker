@@ -31,4 +31,4 @@ RUN \
 ENTRYPOINT ["./entrypoint"]
 
 # Expose ports.
-EXPORT 22
+EXPOSE 22
