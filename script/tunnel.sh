@@ -3,7 +3,7 @@ set -e
 
 # Set environment variables
 TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([A-Z]+_([0-9]+))=(.+):([0-9]+)"
-SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([A-Z]+_([0-9]+))=(.+):([0-9]+)"
+SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([A-Z]+_([0-9]+))=(.+):(.+):([0-9]+)"
 
 SSH_REMOTE_PORT=${SSH_REMOTE_PORT:-2222}
 SSH_IDENTITY_FILE=${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}
@@ -31,8 +31,9 @@ tcp_tunnel() {
 ssh_tunnel() {
   tunnel_name=$1
   local_port=$2
-  remote_host=$3
-  remote_port=$4
+  ssh_host=$3
+  remote_host=$4
+  remote_port=$5
   gracefully_exit=false
   trap 'gracefully_exit=true' SIGINT SIGQUIT
   command="/usr/bin/ssh -T -N"
@@ -51,8 +52,8 @@ ssh_tunnel() {
   if [ -f "${SSH_IDENTITY_FILE}" ]; then
     command="$command -o IdentityFile=\"${SSH_IDENTITY_FILE}\""
   fi
-  command="$command -L *:$local_port:$remote_host:$remote_port $remote_host"
-  echo "Opening $tunnel_name SSH tunnel (*:$local_port -> $remote_host:$remote_port)"
+  command="$command -L *:$local_port:$remote_host:$remote_port $ssh_host"
+  echo "Opening $tunnel_name SSH tunnel (*:$local_port -> $ssh_host:$remote_host:$remote_port)"
   until $command; do
     if [ "$gracefully_exit" = "true" ]; then break; fi
     echo "$tunnel_name SSH tunnel exited with code $?.  Restarting..." >&2
@@ -68,9 +69,9 @@ while read -r tunnel_name local_port remote_host remote_port ; do
 done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1 \2 \3 \4/")
 
 # Look for secure tunnel specifications and spawn them
-while read -r tunnel_name local_port user password_or_identity_file remote_host ssh_port remote_port ; do
-  ssh_tunnel $tunnel_name $local_port $remote_host $ssh_port $remote_port $user $password_or_identity_file &
-done < <(env | grep -E "${SSH_TUNNEL_REGEX}" | sed -E "s/^${SSH_TUNNEL_REGEX}/\1 \2 \3 \4 \5 \6 \7/")
+while read -r tunnel_name local_port ssh_host remote_host remote_port ; do
+  ssh_tunnel $tunnel_name $local_port $ssh_host $remote_host $remote_port &
+done < <(env | grep -E "${SSH_TUNNEL_REGEX}" | sed -E "s/^${SSH_TUNNEL_REGEX}/\1 \2 \3 \4 \5/")
 
 # Wait for all spawned processes to complete
 for pid in `jobs -p`; do
