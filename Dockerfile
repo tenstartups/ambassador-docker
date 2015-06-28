@@ -10,20 +10,21 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 
 # Set environment variables.
 ENV \
-  TERM=xterm-color \
-  HOME=/home/docker
+  TERM=xterm-color
 
 # Install socat
 RUN apk --update add bash nano openssh socat sshpass
 
 # Define working directory.
-WORKDIR /home/docker
+WORKDIR /root
 
 # Add files to the container.
-ADD . /home/docker
+ADD . /root
 
 # Copy scripts and configuration into place.
 RUN \
+  mkdir /root/.ssh && \
+  chmod 700 /root/.ssh && \
   find ./script -regex '^.*\.sh\s*$' -exec bash -c 'f=`basename "{}"`; mv -v "{}" "/usr/local/bin/${f%.*}"' \; && \
   rm -rf ./script
 
