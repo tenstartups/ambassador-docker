@@ -82,7 +82,6 @@ done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1 
 while read -r tunnel_name bind_port service_host service_port ssh_host ssh_port ; do
   bind_address=${bind_address:-$DEFAULT_BIND_ADDRESS}
   ssh_port=${ssh_port:-$DEFAULT_SSH_PORT}
-  echo $ssh_port
   ssh_tunnel $tunnel_name $bind_address $bind_port $service_host $service_port $ssh_host $ssh_port &
 done < <(env | grep -E "${SSH_TUNNEL_REGEX}" | sed -E "s/^${SSH_TUNNEL_REGEX}/\1 \2 \3 \4 \5 \7/")
 
