@@ -35,7 +35,7 @@ ssh_tunnel() {
   service_port=$5
   ssh_host=$6
   ssh_port=$7
-  command="/usr/bin/ssh -T -N"
+  command="/usr/local/bin/autossh -M 0 -T -N"
   if [ "${SSH_DEBUG_LEVEL}" = "1" ]; then
     command="$command -v"
   fi

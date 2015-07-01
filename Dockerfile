@@ -13,7 +13,16 @@ ENV \
   TERM=xterm-color
 
 # Install socat
-RUN apk --update add bash nano openssh socat sshpass
+RUN apk --update add bash alpine-sdk nano openssh socat sshpass wget
+
+# Compile autossh from source.
+RUN \
+  wget http://www.harding.motd.ca/autossh/autossh-1.4e.tgz && \
+  tar -xzf autossh-*.tgz && \
+  cd autossh-* && \
+  ./configure && \
+  make && \
+  make install
 
 # Define working directory.
 WORKDIR /root
