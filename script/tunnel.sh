@@ -17,15 +17,13 @@ tcp_tunnel() {
   bind_port=$3
   service_host=$4
   service_port=$5
-  gracefully_exit=false
-  trap 'gracefully_exit=true' SIGINT SIGQUIT
   command="/usr/bin/socat -d TCP-LISTEN:$bind_port,bind=$bind_address,fork TCP:$service_host:$service_port,reuseaddr"
   echo "Opening $tunnel_name TCP tunnel ($bind_address:$bind_port -> $service_host:$service_port)"
-  until $command; do
-    if [ "$gracefully_exit" = "true" ]; then break; fi
-    echo "$tunnel_name TCP tunnel exited with code $?.  Restarting..." >&2
-    sleep 1
-  done
+  if $command; then
+    echo "$tunnel_name TCP tunnel exited normally."
+  else
+    echo "$tunnel_name TCP tunnel exited with code $?." >&2
+  fi
 }
 
 # Function to open an SSH tunnel
@@ -37,8 +35,6 @@ ssh_tunnel() {
   service_port=$5
   ssh_host=$6
   ssh_port=$7
-  gracefully_exit=false
-  trap 'gracefully_exit=true' SIGINT SIGQUIT
   command="/usr/bin/ssh -T -N"
   if [ "${SSH_DEBUG_LEVEL}" = "1" ]; then
     command="$command -v"
@@ -63,19 +59,21 @@ ssh_tunnel() {
   fi
   command="$command -L $bind_address:$bind_port:$service_host:$service_port $ssh_host"
   echo "Opening $tunnel_name SSH tunnel ($bind_address:$bind_port -> $service_host:$service_port[$ssh_host:$ssh_port])"
-  until $command; do
-    if [ "$gracefully_exit" = "true" ]; then break; fi
-    echo "$tunnel_name SSH tunnel exited with code $?.  Restarting..." >&2
-    sleep 1
-  done
+  if $command; then
+    echo "$tunnel_name SSH tunnel exited normally."
+  else
+    echo "$tunnel_name SSH tunnel exited with code $?." >&2
+  fi
 }
 
+# Initialize pids array
 pids=()
 
 # Look for insecure tunnel specifications and spawn them
 while read -r tunnel_name bind_port service_host service_port ; do
   bind_address=${bind_address:-$DEFAULT_BIND_ADDRESS}
   tcp_tunnel $tunnel_name $bind_address $bind_port $service_host $service_port &
+  pids+=($!)
 done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1 \2 \3 \4/")
 
 # Look for secure tunnel specifications and spawn them
@@ -83,9 +81,26 @@ while read -r tunnel_name bind_port service_host service_port ssh_host ssh_port 
   bind_address=${bind_address:-$DEFAULT_BIND_ADDRESS}
   ssh_port=${ssh_port:-$DEFAULT_SSH_PORT}
   ssh_tunnel $tunnel_name $bind_address $bind_port $service_host $service_port $ssh_host $ssh_port &
+  pids+=($!)
 done < <(env | grep -E "${SSH_TUNNEL_REGEX}" | sed -E "s/^${SSH_TUNNEL_REGEX}/\1 \2 \3 \4 \5 \7/")
 
-# Wait for all spawned processes to complete
-for pid in `jobs -p`; do
-  wait $pid
+# Kill all subprocesses
+killprocs() {
+  for pid in "${pids[@]}"; do
+    echo "Killing tunnel process $pid"
+    kill $pid 2>/dev/null
+  done
+}
+
+trap 'killprocs' EXIT
+
+# Wait on processes and kill them all if any exited
+while true; do
+  for pid in "${pids[@]}"; do
+    if ! kill -0 $pid 2>/dev/null; then
+      echo "Tunnel process $pid not running... exiting"
+      exit 1;
+    fi
+  done
+	sleep 1
 done
