@@ -12,8 +12,8 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 ENV \
   TERM=xterm-color
 
-# Install socat
-RUN apk --update add bash alpine-sdk nano openssh socat sshpass wget
+# Install packages.
+RUN apk --update add bash build-base nano openssh socat sshpass wget
 
 # Compile autossh from source.
 RUN \
