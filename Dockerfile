@@ -34,7 +34,7 @@ ADD . /root
 RUN \
   mkdir /root/.ssh && \
   chmod 700 /root/.ssh && \
-  find ./script -regex '^.*\.sh\s*$' -exec bash -c 'f=`basename "{}"`; mv -v "{}" "/usr/local/bin/${f%.*}"' \; && \
+  find ./script -type f -name '*.sh' | while read f; do echo 'n' | cp -iv "$f" "/usr/local/bin/`basename ${f%.sh}`" 2>/dev/null; done && \
   rm -rf ./script
 
 # Set the entrypoint script.
