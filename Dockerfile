@@ -4,7 +4,7 @@
 # http://github.com/tenstartups/ambassador-docker
 #
 
-FROM gliderlabs/alpine:latest
+FROM alpine:latest
 
 MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 
@@ -13,7 +13,9 @@ ENV \
   TERM=xterm-color
 
 # Install packages.
-RUN apk --update add bash build-base nano openssh socat sshpass wget
+RUN \
+  apk --update add bash build-base nano openssh socat sshpass wget && \
+  rm /var/cache/apk/*
 
 # Compile autossh from source.
 RUN \
