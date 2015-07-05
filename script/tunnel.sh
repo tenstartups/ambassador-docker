@@ -2,8 +2,8 @@
 set -e
 
 # Set environment variables
-TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([A-Z]+_([0-9]+))=(.+):([0-9]+)"
-SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([A-Z]+_([0-9]+))=(.+):([0-9]+)\[([^:]+)(:([0-9]+))?\]"
+TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_(_[A-Z]+_([0-9]+))=(.+):([0-9]+)"
+SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\[([^:]+)(:([0-9]+))?\]"
 SSH_IDENTITY_FILE=${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}
 SSH_SERVER_CHECK_INTERVAL=${SSH_SERVER_CHECK_INTERVAL:-30}
 SSH_USER=${SSH_USER:-root}
