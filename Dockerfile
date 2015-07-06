@@ -36,7 +36,7 @@ ADD . /root
 RUN \
   mkdir /root/.ssh && \
   chmod 700 /root/.ssh && \
-  find ./script -type f -name '*.sh' | while read f; do echo "$f -> /usr/local/bin/`basename ${f%.sh}`"; cp "$f" "/usr/local/bin/`basename ${f%.sh}`"; done && \
+  find ./script -type f -name '*.sh' | while read f; do echo "'$f' -> '/usr/local/bin/`basename ${f%.sh}`'"; cp "$f" "/usr/local/bin/`basename ${f%.sh}`"; done && \
   rm -rf ./script
 
 # Set the entrypoint script.
