@@ -46,6 +46,7 @@ ssh_tunnel() {
     command="$command -v -v -v"
   fi
   command="$command -o StrictHostKeyChecking=false"
+  command="$command -o UserKnownHostsFile=/dev/null"
   command="$command -o ServerAliveInterval=${SSH_SERVER_CHECK_INTERVAL}"
   command="$command -o Port=$ssh_port"
   command="$command -o User=${SSH_USER}"
