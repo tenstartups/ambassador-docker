@@ -10,6 +10,9 @@ SSH_USER=${SSH_USER:-root}
 DEFAULT_BIND_ADDRESS="0.0.0.0"
 DEFAULT_SSH_PORT=2222
 
+# Ensure that autossh doesn't fail even if the initial ssh connection fails
+export AUTOSSH_GATETIME=0
+
 # Function to open a TCP tunnel with socat
 tcp_tunnel() {
   tunnel_name=$1
