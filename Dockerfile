@@ -11,7 +11,7 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 # Set environment variables.
 ENV \
   TERM=xterm-color \
-  ETCD_ENDPOINT=127.0.0.1:4001
+  ETCD_ENDPOINT=172.17.42.1:2379
 
 # Install packages.
 RUN \
@@ -45,7 +45,7 @@ WORKDIR /root
 # Add files to the container.
 ADD . /root
 
-# Copy scripts and configuration into place.
+# Copy scripts into place.
 RUN \
   mkdir /root/.ssh && \
   chmod 700 /root/.ssh && \

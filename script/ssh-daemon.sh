@@ -10,12 +10,10 @@ if ! [ -f "${SSH_HOST_KEY_FILE}" ]; then
   ssh-keygen -t rsa -b 4096 -f "${SSH_HOST_KEY_FILE}" -N '' -C ''
 fi
 
-# Create a symlink to the authorized keys file if not the DEFAULT_SSH_PORT
-if [ -f "${SSH_AUTHORIZED_KEYS_FILE}" ] && [ "${SSH_AUTHORIZED_KEYS_FILE}" != "/root/.ssh/authorized_keys" ]; then
-  rm -f "/root/.ssh/authorized_keys"
-  ln -fs "${SSH_AUTHORIZED_KEYS_FILE}" "/root/.ssh/authorized_keys"
-fi
+# Modify the sshd configuration
+printf '\n%s\n%s\n' "AuthorizedKeysFile ${SSH_AUTHORIZED_KEYS_FILE}" "HostKey ${SSH_HOST_KEY_FILE}" >> /etc/ssh/sshd_config
 
+# Construct the sshd command
 command="/usr/sbin/sshd -D"
 if [ "${SSH_DEBUG_LEVEL}" = "1" ]; then
   command="$command -d -e"
@@ -26,6 +24,5 @@ fi
 if [ "${SSH_DEBUG_LEVEL}" = "3" ]; then
   command="$command -d -d -d -e"
 fi
-command="$command -h ${SSH_HOST_KEY_FILE}"
 
 $command
