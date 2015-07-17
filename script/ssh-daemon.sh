@@ -11,6 +11,8 @@ if ! [ -f "${SSH_HOST_KEY_FILE}" ]; then
 fi
 
 # Modify the sshd configuration
+sed -i -r "s/^(\s*AuthorizedKeysFile.*)\$/#\1/" /etc/ssh/sshd_config
+sed -i -r "s/^(\s*HostKey.*)\$/#\1/" /etc/ssh/sshd_config
 printf '\n%s\n%s\n' "AuthorizedKeysFile ${SSH_AUTHORIZED_KEYS_FILE}" "HostKey ${SSH_HOST_KEY_FILE}" >> /etc/ssh/sshd_config
 
 # Construct the sshd command
