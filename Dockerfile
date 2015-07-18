@@ -43,17 +43,12 @@ RUN \
 WORKDIR /root
 
 # Add files to the container.
-ADD . /root
-
-# Copy scripts into place.
-RUN \
-  mkdir /root/.ssh && \
-  chmod 700 /root/.ssh && \
-  find ./script -type f -name '*.sh' | while read f; do echo "'$f' -> '/usr/local/bin/`basename ${f%.sh}`'"; cp "$f" "/usr/local/bin/`basename ${f%.sh}`"; done && \
-  rm -rf ./script
+COPY entrypoint.sh /entrypoint
+COPY tunnel.sh /usr/local/bin/tunnel
+COPY sshd.sh /usr/local/bin/sshd
 
 # Set the entrypoint script.
-ENTRYPOINT ["./entrypoint"]
+ENTRYPOINT ["/entrypoint"]
 
 # Expose ports.
 EXPOSE 22
