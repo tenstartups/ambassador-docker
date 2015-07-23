@@ -18,13 +18,13 @@ printf '\n%s\n%s\n' "AuthorizedKeysFile ${SSH_AUTHORIZED_KEYS_FILE}" "HostKey ${
 # Construct the sshd command
 command="/usr/sbin/sshd -D"
 if [ "${SSH_DEBUG_LEVEL}" = "1" ]; then
-  command="$command -d -e"
+  command="${command} -d -e"
 fi
 if [ "${SSH_DEBUG_LEVEL}" = "2" ]; then
-  command="$command -d -d -e"
+  command="${command} -d -d -e"
 fi
 if [ "${SSH_DEBUG_LEVEL}" = "3" ]; then
-  command="$command -d -d -d -e"
+  command="${command} -d -d -d -e"
 fi
 
-$command
+${command}
