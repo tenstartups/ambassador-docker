@@ -75,22 +75,22 @@ ssh_tunnel() {
 pids=()
 
 # Look for insecure tunnel specifications and spawn them
-while read -r tunnel_name bind_port service_host service_port ; do
+while IFS=$'\t' read -r tunnel_name bind_port service_host service_port ; do
   bind_address=${bind_address:-$DEFAULT_BIND_ADDRESS}
   tcp_tunnel ${tunnel_name} ${bind_address} ${bind_port} ${service_host} ${service_port} &
   pids+=($!)
-done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1 \2 \3 \4/")
+done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1\t\2\t\3\t\4/")
 
 # Look for secure tunnel specifications and spawn them
-while read -r tunnel_name bind_port service_host service_port ssh_user ssh_host ssh_port ; do
+while IFS=$'\t' read -r tunnel_name bind_port service_host service_port ssh_user ssh_host ssh_port ; do
   bind_address=${bind_address:-$DEFAULT_BIND_ADDRESS}
-  ssh_user=${ssh_user#'o'}
-  ssh_port=${ssh_port#'o'}
+  ssh_user=${ssh_user%%'?'}
+  ssh_port=${ssh_port%%'?'}
   ssh_user=${ssh_user:-$DEFAULT_SSH_USER}
   ssh_port=${ssh_port:-$DEFAULT_SSH_PORT}
   ssh_tunnel ${tunnel_name} ${bind_address} ${bind_port} ${service_host} ${service_port} ${ssh_user} ${ssh_host} ${ssh_port} &
   pids+=($!)
-done < <(env | grep -E "${SSH_TUNNEL_REGEX}" | sed -E "s/^${SSH_TUNNEL_REGEX}/\1 \2 \3 \4 o\6 \7 o\9/")
+done < <(env | grep -E "${SSH_TUNNEL_REGEX}" | sed -E "s/^${SSH_TUNNEL_REGEX}/\1\t\2\t\3\t\4\t\6?\t\7\t\9?/")
 
 # Kill all subprocesses
 killprocs() {
