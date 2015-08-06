@@ -2,25 +2,22 @@
 set -e
 
 # Set environment variables
-ETCD_ENVIRONMENT_VARIABLE_REGEX="^\s*([^=]+)=etcd:\/\/([^\/:]+(:([0-9]+))?)?(\/.+)\s*$"
+ETCD_ENVIRONMENT_VARIABLE_REGEX="^\s*ETCDENV_([^=]+)=(.+)\s*$"
 
 # Lookup set environment variables from etcd
-if ! [ -z "$(env | grep -E "${ETCD_ENVIRONMENT_VARIABLE_REGEX}")" ]; then
+if ! [ -z "${ETCD_ENDPOINT}" ]; then
 
   # Export environment variables from etcd keys
   temp_env_file="$(mktemp)"
   chmod +x "${temp_env_file}"
-  while IFS=$'\t' read -r env_name etcd_endpoint etcd_key ; do
-    etcd_endpoint=${etcd_endpoint%%'?'}
-    etcd_endpoint=${etcd_endpoint:-$ETCD_ENDPOINT}
-    etcd_endpoint=${etcd_endpoint:-127.0.0.1:2379}
-    env_value=$(etcdctl --peers=${etcd_endpoint} get ${etcd_key} 2>/dev/null || true)
+  while IFS=$'\t' read -r env_name etcd_key ; do
+    env_value=$(etcdctl --peers=${ETCD_ENDPOINT} get "${etcd_key}" 2>/dev/null || true)
     if [ -z "${env_value}" ]; then
-      echo >&2 "Unable to get ${etcd_key} from etcd at ${etcd_endpoint}."
-      exit 1
+      echo >&2 "Unable to get ${etcd_key} from etcd at ${ETCD_ENDPOINT}."
+    else
+      echo "export ${env_name}=\"${env_value}\"" >> "${temp_env_file}"
     fi
-    echo "export ${env_name}=\"${env_value}\"" >> "${temp_env_file}"
-  done < <(env | grep -E "${ETCD_ENVIRONMENT_VARIABLE_REGEX}" | sort | sed -E "s/${ETCD_ENVIRONMENT_VARIABLE_REGEX}/\1\t\2?\t\5/")
+  done < <(env | grep -E "${ETCD_ENVIRONMENT_VARIABLE_REGEX}" | sort | sed -E "s/${ETCD_ENVIRONMENT_VARIABLE_REGEX}/\1\t\2/")
   source "${temp_env_file}"
   rm -f "${temp_env_file}"
 
