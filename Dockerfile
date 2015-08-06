@@ -11,7 +11,7 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 # Set environment variables.
 ENV \
   TERM=xterm-color \
-  ETCD_ENDPOINT=
+  ETCDCTL_PEERS=
 
 # Install packages.
 RUN \

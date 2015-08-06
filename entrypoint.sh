@@ -5,15 +5,15 @@ set -e
 ETCD_ENVIRONMENT_VARIABLE_REGEX="^\s*ETCDENV_([^=]+)=(.+)\s*$"
 
 # Lookup set environment variables from etcd
-if ! [ -z "${ETCD_ENDPOINT}" ]; then
+if ! [ -z "${ETCDCTL_PEERS}" ]; then
 
   # Export environment variables from etcd keys
   temp_env_file="$(mktemp)"
   chmod +x "${temp_env_file}"
   while IFS=$'\t' read -r env_name etcd_key ; do
-    env_value=$(etcdctl --peers=${ETCD_ENDPOINT} get "${etcd_key}" 2>/dev/null || true)
+    env_value=$(etcdctl get "${etcd_key}" 2>/dev/null || true)
     if [ -z "${env_value}" ]; then
-      echo >&2 "Unable to get ${etcd_key} from etcd at ${ETCD_ENDPOINT}."
+      echo >&2 "Unable to get ${etcd_key} from etcd peers ${ETCDCTL_PEERS}."
     else
       echo "export ${env_name}=\"${env_value}\"" >> "${temp_env_file}"
     fi
