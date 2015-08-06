@@ -26,7 +26,7 @@ if ! [ -z "${ETCD_ENDPOINT}" ]; then
       echo >&2 "Unable to load ${etcd_variable} variable from etcd."
       exit 1
     fi
-    echo "${env_name}=${env_value}" >> "${temp_env_file}"
+    echo "export ${env_name}=\"${env_value}\"" >> "${temp_env_file}"
   done < <(env | grep -E "${ETCD_ENVIRONMENT_VARIABLE_REGEX}" | sed -E "s/${ETCD_ENVIRONMENT_VARIABLE_REGEX}/\1 \2/" | sort | uniq)
   source "${temp_env_file}"
   rm -f "${temp_env_file}"
