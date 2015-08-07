@@ -10,8 +10,7 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 
 # Set environment variables.
 ENV \
-  TERM=xterm-color \
-  ETCDCTL_PEERS=
+  TERM=xterm-color
 
 # Install packages.
 RUN \
@@ -29,15 +28,6 @@ RUN \
   make install && \
   cd .. && \
   rm -rf autossh-*
-
-# Install etcdctl from repository.
-RUN \
-  cd /tmp && \
-  wget --no-check-certificate https://github.com/coreos/etcd/releases/download/v2.0.13/etcd-v2.0.13-linux-amd64.tar.gz && \
-  tar zxvf etcd-*-linux-amd64.tar.gz && \
-  cp etcd-*-linux-amd64/etcdctl /usr/local/bin/etcdctl && \
-  rm -rf etcd-*-linux-amd64 && \
-  chmod +x /usr/local/bin/etcdctl
 
 # Define working directory.
 WORKDIR /root
