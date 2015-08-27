@@ -12,7 +12,7 @@ fi
 
 # Look for known command aliases
 case "$1" in
-  "client" ) shift ; exec su "${SSH_USER}" -c "/usr/local/bin/tunnel" "$@" ;;
+  "client" ) shift ; exec "/usr/local/bin/tunnel" "$@" ;;
   "server" ) shift ; exec "/usr/local/bin/sshd" "$@" ;;
   * )        exec "$@" ;;
 esac

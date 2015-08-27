@@ -4,9 +4,9 @@ set -e
 # Set environment variables
 TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\s*$"
 SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\[(([^@]+)@)?([^:]+)(:([0-9]+))?\]\s*$"
-SSH_IDENTITY_FILE=${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}
+SSH_IDENTITY_FILE="${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}"
 SSH_SERVER_CHECK_INTERVAL=${SSH_SERVER_CHECK_INTERVAL:-30}
-DEFAULT_SSH_USER=${SSH_USER:-root}
+DEFAULT_SSH_USER=${SSH_USER:-`whoami`}
 DEFAULT_BIND_ADDRESS="0.0.0.0"
 DEFAULT_SSH_PORT=2222
 
