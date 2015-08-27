@@ -11,21 +11,6 @@ if ! [ -f "${SSH_HOST_KEY_FILE}" ]; then
   ssh-keygen -t rsa -b 4096 -f "${SSH_HOST_KEY_FILE}" -N '' -C ''
 fi
 
-# Modify the sshd configuration
-sed -i -r "s/^(\s*AllowUsers.*)\$/#\1/"                      /etc/ssh/sshd_config
-sed -i -r "s/^(\s*AuthorizedKeysFile.*)\$/#\1/"              /etc/ssh/sshd_config
-sed -i -r "s/^(\s*ChallengeResponseAuthentication.*)\$/#\1/" /etc/ssh/sshd_config
-sed -i -r "s/^(\s*HostKey.*)\$/#\1/"                         /etc/ssh/sshd_config
-sed -i -r "s/^(\s*PermitRootLogin.*)\$/#\1/"                 /etc/ssh/sshd_config
-
-printf '\n%s\n' "AuthorizedKeysFile ${SSH_AUTHORIZED_KEYS_FILE}" >> /etc/ssh/sshd_config
-printf '\n%s\n' "AllowUsers ${SSH_USER}"                         >> /etc/ssh/sshd_config
-printf '\n%s\n' "ChallengeResponseAuthentication no"             >> /etc/ssh/sshd_config
-printf '\n%s\n' "HostKey ${SSH_HOST_KEY_FILE}"                   >> /etc/ssh/sshd_config
-if ! [ "${SSH_USER}" = "root" ]; then
-  printf '\n%s\n' "PermitRootLogin no"                             >> /etc/ssh/sshd_config
-fi
-
 # Construct the sshd command
 command="/usr/sbin/sshd -D"
 if [ "${SSH_DEBUG_LEVEL}" = "1" ]; then
@@ -37,5 +22,14 @@ fi
 if [ "${SSH_DEBUG_LEVEL}" = "3" ]; then
   command="${command} -d -d -d -e"
 fi
+command="${command} -f /etc/ssh/sshd_config"
+command="${command} -h ${SSH_HOST_KEY_FILE}"
+command="${command} -o AllowUsers=${SSH_USER}"
+command="${command} -o AuthorizedKeysFile=${SSH_AUTHORIZED_KEYS_FILE}"
+command="${command} -o ChallengeResponseAuthentication=no"
+if ! [ "${SSH_USER}" = "root" ]; then
+  command="${command} -o PermitRootLogin=no"
+fi
+command="${command} -p ${SSH_PORT}"
 
 ${command}

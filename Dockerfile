@@ -43,4 +43,4 @@ COPY sshd.sh /usr/local/bin/sshd
 ENTRYPOINT ["/entrypoint"]
 
 # Expose ports.
-EXPOSE 22
+EXPOSE 2222
