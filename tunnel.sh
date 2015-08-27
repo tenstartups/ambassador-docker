@@ -6,9 +6,9 @@ TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\s*$"
 SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\[(([^@]+)@)?([^:]+)(:([0-9]+))?\]\s*$"
 SSH_IDENTITY_FILE="${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}"
 SSH_SERVER_CHECK_INTERVAL=${SSH_SERVER_CHECK_INTERVAL:-30}
-DEFAULT_SSH_USER=${SSH_USER:-`whoami`}
-DEFAULT_BIND_ADDRESS="0.0.0.0"
-DEFAULT_SSH_PORT=2222
+SSH_USER=${SSH_USER:-`whoami`}
+BIND_ADDRESS="0.0.0.0"
+SSH_PORT=${SSH_PORT:-2222}
 
 # Ensure that autossh doesn't fail even if the initial ssh connection fails
 export AUTOSSH_GATETIME=0
@@ -76,18 +76,18 @@ pids=()
 
 # Look for insecure tunnel specifications and spawn them
 while IFS=$'\t' read -r tunnel_name bind_port service_host service_port ; do
-  bind_address=${bind_address:-$DEFAULT_BIND_ADDRESS}
+  bind_address=${bind_address:-$BIND_ADDRESS}
   tcp_tunnel ${tunnel_name} ${bind_address} ${bind_port} ${service_host} ${service_port} &
   pids+=($!)
 done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1\t\2\t\3\t\4/")
 
 # Look for secure tunnel specifications and spawn them
 while IFS=$'\t' read -r tunnel_name bind_port service_host service_port ssh_user ssh_host ssh_port ; do
-  bind_address=${bind_address:-$DEFAULT_BIND_ADDRESS}
+  bind_address=${bind_address:-$BIND_ADDRESS}
   ssh_user=${ssh_user%%'?'}
   ssh_port=${ssh_port%%'?'}
-  ssh_user=${ssh_user:-$DEFAULT_SSH_USER}
-  ssh_port=${ssh_port:-$DEFAULT_SSH_PORT}
+  ssh_user=${ssh_user:-$SSH_USER}
+  ssh_port=${ssh_port:-$SSH_PORT}
   ssh_tunnel ${tunnel_name} ${bind_address} ${bind_port} ${service_host} ${service_port} ${ssh_user} ${ssh_host} ${ssh_port} &
   pids+=($!)
 done < <(env | grep -E "${SSH_TUNNEL_REGEX}" | sed -E "s/^${SSH_TUNNEL_REGEX}/\1\t\2\t\3\t\4\t\6?\t\7\t\9?/")
