@@ -6,7 +6,7 @@ TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\s*$"
 SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\[(([^@]+)@)?([^:]+)(:([0-9]+))?\]\s*$"
 SSH_IDENTITY_FILE=${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}
 SSH_SERVER_CHECK_INTERVAL=${SSH_SERVER_CHECK_INTERVAL:-30}
-DEFAULT_SSH_USER=${DEFAULT_SSH_USER:-root}
+DEFAULT_SSH_USER=${SSH_USER:-root}
 DEFAULT_BIND_ADDRESS="0.0.0.0"
 DEFAULT_SSH_PORT=2222
 
@@ -49,7 +49,7 @@ ssh_tunnel() {
   if [ "${SSH_DEBUG_LEVEL}" = "3" ]; then
     command="${command} -v -v -v"
   fi
-  command="${command} -o StrictHostKeyChecking=false"
+  command="${command} -o StrictHostKeyChecking=no"
   command="${command} -o UserKnownHostsFile=/dev/null"
   command="${command} -o ServerAliveInterval=${SSH_SERVER_CHECK_INTERVAL}"
   command="${command} -o Port=${ssh_port}"
@@ -57,7 +57,7 @@ ssh_tunnel() {
   if ! [ -z "${SSH_PASSWORD}" ]; then
     command="/usr/bin/sshpass -p \"${SSH_PASSWORD}\" ${command}"
   else
-    command="${command} -o PasswordAuthentication=false"
+    command="${command} -o PasswordAuthentication=no"
   fi
   if [ -f "${SSH_IDENTITY_FILE}" ]; then
     command="${command} -o IdentityFile=\"${SSH_IDENTITY_FILE}\""

@@ -10,6 +10,7 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 
 # Set environment variables.
 ENV \
+  AUTOSSH_VERSION=1.4e \
   TERM=xterm-color
 
 # Install packages.
@@ -20,7 +21,7 @@ RUN \
 # Compile autossh from source.
 RUN \
   cd /tmp && \
-  wget http://www.harding.motd.ca/autossh/autossh-1.4e.tgz && \
+  wget http://www.harding.motd.ca/autossh/autossh-${AUTOSSH_VERSION}.tgz && \
   tar -xzf autossh-*.tgz && \
   cd autossh-* && \
   ./configure && \
