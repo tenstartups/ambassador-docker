@@ -5,6 +5,12 @@ set -e
 SSH_HOST_KEY_FILE="${SSH_HOST_KEY_FILE:-/keys/host.pem}"
 SSH_AUTHORIZED_KEYS_FILE="${SSH_AUTHORIZED_KEYS_FILE:-/keys/host.pem.pub}"
 
+# Create the ssh user if specified
+if ! [ "${SSH_USER}" = "root" ]; then
+  adduser -h / -g '' -s /bin/sh -D -H "${SSH_USER}"
+  passwd -u "${SSH_USER}" > /dev/null
+fi
+
 # Generate an SSH key if none is present
 if ! [ -f "${SSH_HOST_KEY_FILE}" ]; then
   mkdir -p "`dirname ${SSH_HOST_KEY_FILE}`"

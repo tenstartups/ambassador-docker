@@ -11,6 +11,7 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 # Set environment variables.
 ENV \
   AUTOSSH_VERSION=1.4e \
+  SSH_USER=ambassador \
   SSH_PORT=2222 \
   TERM=xterm-color
 
