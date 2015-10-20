@@ -18,7 +18,7 @@ ENV \
 # Install packages.
 RUN \
   apk --update add bash build-base nano openssh socat sshpass wget && \
-  rm /var/cache/apk/*
+  rm -rf /var/cache/apk/*
 
 # Compile autossh from source.
 RUN \
@@ -36,12 +36,12 @@ RUN \
 WORKDIR /root
 
 # Add files to the container.
-COPY entrypoint.sh /entrypoint
+COPY entrypoint.sh /docker-entrypoint
 COPY tunnel.sh /usr/local/bin/tunnel
 COPY sshd.sh /usr/local/bin/sshd
 
 # Set the entrypoint script.
-ENTRYPOINT ["/entrypoint"]
+ENTRYPOINT ["/docker-entrypoint"]
 
 # Expose ports.
 EXPOSE 2222

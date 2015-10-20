@@ -3,7 +3,7 @@ set -e
 
 # Set environment variables
 TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\s*$"
-SSH_TUNNEL_REGEX="^\s*SSH_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\[(([^@]+)@)?([^:]+)(:([0-9]+))?\]\s*$"
+SSH_TUNNEL_REGEX="^\s*SSH_(REMOTE|LOCAL)?_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\[([^@]+@)?([^:]+)(:[0-9]+)?\]\s*$"
 SSH_IDENTITY_FILE="${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}"
 SSH_SERVER_CHECK_INTERVAL=${SSH_SERVER_CHECK_INTERVAL:-30}
 BIND_ADDRESS="0.0.0.0"
@@ -29,14 +29,20 @@ tcp_tunnel() {
 
 # Function to open an SSH tunnel
 ssh_tunnel() {
-  tunnel_name=$1
-  bind_address=$2
-  bind_port=$3
-  service_host=$4
-  service_port=$5
-  ssh_user=$6
-  ssh_host=$7
-  ssh_port=$8
+  tunnel_type=$1
+  tunnel_name=$2
+  bind_address=$3
+  bind_port=$4
+  service_host=$5
+  service_port=$6
+  ssh_user=$7
+  ssh_host=$8
+  ssh_port=$9
+  if [ "${tunnel_type}" = "REMOTE" ]; then
+    tunnel_desc="${tunnel_name} SSH remote tunnel"
+  else
+    tunnel_desc="${tunnel_name} SSH local tunnel"
+  fi
   command="/usr/local/bin/autossh -M 0 -T -N"
   if [ "${SSH_DEBUG_LEVEL}" = "1" ]; then
     command="${command} -v"
@@ -60,12 +66,16 @@ ssh_tunnel() {
   if [ -f "${SSH_IDENTITY_FILE}" ]; then
     command="${command} -o IdentityFile=\"${SSH_IDENTITY_FILE}\""
   fi
-  command="${command} -L ${bind_address}:${bind_port}:${service_host}:${service_port} ${ssh_host}"
-  echo "Opening ${tunnel_name} SSH tunnel (${bind_address}:${bind_port} -> ${service_host}:${service_port}[${ssh_user}@${ssh_host}:${ssh_port}])"
-  if ${command}; then
-    echo "${tunnel_name} SSH tunnel exited normally."
+  if [ "${tunnel_type}" = "REMOTE" ]; then
+    command="${command} -R ${bind_address}:${bind_port}:${service_host}:${service_port} ${ssh_host}"
   else
-    echo "${tunnel_name} SSH tunnel exited with code $?." >&2
+    command="${command} -L ${bind_address}:${bind_port}:${service_host}:${service_port} ${ssh_host}"
+  fi
+  echo "Opening ${tunnel_desc} (${bind_address}:${bind_port} -> ${service_host}:${service_port}[${ssh_user}@${ssh_host}:${ssh_port}])"
+  if ${command}; then
+    echo "${tunnel_desc} exited normally."
+  else
+    echo "${tunnel_desc} exited with code $?." >&2
   fi
 }
 
@@ -80,15 +90,18 @@ while IFS=$'\t' read -r tunnel_name bind_port service_host service_port ; do
 done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1\t\2\t\3\t\4/")
 
 # Look for secure tunnel specifications and spawn them
-while IFS=$'\t' read -r tunnel_name bind_port service_host service_port ssh_user ssh_host ssh_port ; do
-  bind_address=${bind_address:-$BIND_ADDRESS}
-  ssh_user=${ssh_user%%'?'}
+while IFS=$'\t' read -r tunnel_type tunnel_name bind_port service_host service_port ssh_user ssh_host ssh_port ; do
+  tunnel_type=${tunnel_type%%'?'}
+  ssh_user=${ssh_user%%'@?'}
+  ssh_port=${ssh_port##':'}
   ssh_port=${ssh_port%%'?'}
+  tunnel_type=${tunnel_type:-LOCAL}
+  bind_address=${bind_address:-$BIND_ADDRESS}
   ssh_user=${ssh_user:-$SSH_USER}
   ssh_port=${ssh_port:-$SSH_PORT}
-  ssh_tunnel ${tunnel_name} ${bind_address} ${bind_port} ${service_host} ${service_port} ${ssh_user} ${ssh_host} ${ssh_port} &
+  ssh_tunnel ${tunnel_type} ${tunnel_name} ${bind_address} ${bind_port} ${service_host} ${service_port} ${ssh_user} ${ssh_host} ${ssh_port} &
   pids+=($!)
-done < <(env | grep -E "${SSH_TUNNEL_REGEX}" | sed -E "s/^${SSH_TUNNEL_REGEX}/\1\t\2\t\3\t\4\t\6?\t\7\t\9?/")
+done < <(env | grep -E ${SSH_TUNNEL_REGEX} | sed -E "s/^${SSH_TUNNEL_REGEX}/\1?\t\2\t\3\t\4\t\5\t\6?\t\7\t\8?/")
 
 # Kill all subprocesses
 killprocs() {
@@ -108,5 +121,5 @@ while true; do
       exit 1;
     fi
   done
-	sleep 1
+  sleep 1
 done
