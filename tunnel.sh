@@ -3,7 +3,7 @@ set -e
 
 # Set environment variables
 TCP_TUNNEL_REGEX="^\s*TCP_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\s*$"
-SSH_TUNNEL_REGEX="^\s*SSH_(REMOTE|LOCAL)?_TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\[([^@]+@)?([^:]+)(:[0-9]+)?\]\s*$"
+SSH_TUNNEL_REGEX="^\s*SSH_(REMOTE_|LOCAL_)?TUNNEL_([_A-Z]+_([0-9]+))=(.+):([0-9]+)\[([^@]+@)?([^:]+)(:[0-9]+)?\]\s*$"
 SSH_IDENTITY_FILE="${SSH_IDENTITY_FILE:-$HOME/.ssh/id_rsa}"
 SSH_SERVER_CHECK_INTERVAL=${SSH_SERVER_CHECK_INTERVAL:-30}
 BIND_ADDRESS="0.0.0.0"
@@ -92,6 +92,7 @@ done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1\
 # Look for secure tunnel specifications and spawn them
 while IFS=$'\t' read -r tunnel_type tunnel_name bind_port service_host service_port ssh_user ssh_host ssh_port ; do
   tunnel_type=${tunnel_type%%'?'}
+  tunnel_type=${tunnel_type%%'_'}
   ssh_user=${ssh_user%%'@?'}
   ssh_port=${ssh_port##':'}
   ssh_port=${ssh_port%%'?'}
