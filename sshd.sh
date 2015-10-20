@@ -33,6 +33,7 @@ command="${command} -h ${SSH_HOST_KEY_FILE}"
 command="${command} -o AllowUsers=${SSH_USER}"
 command="${command} -o AuthorizedKeysFile=${SSH_AUTHORIZED_KEYS_FILE}"
 command="${command} -o ChallengeResponseAuthentication=no"
+command="${command} -o GatewayPorts=clientspecified"
 if ! [ "${SSH_USER}" = "root" ]; then
   command="${command} -o PermitRootLogin=no"
 fi
