@@ -93,7 +93,8 @@ done < <(env | grep -E "${TCP_TUNNEL_REGEX}" | sed -E "s/${TCP_TUNNEL_REGEX}/\1\
 while IFS=$'\t' read -r tunnel_type tunnel_name bind_port service_host service_port ssh_user ssh_host ssh_port ; do
   tunnel_type=${tunnel_type%%'?'}
   tunnel_type=${tunnel_type%%'_'}
-  ssh_user=${ssh_user%%'@?'}
+  ssh_user=${ssh_user%%'?'}
+  ssh_user=${ssh_user%%'@'}
   ssh_port=${ssh_port##':'}
   ssh_port=${ssh_port%%'?'}
   tunnel_type=${tunnel_type:-LOCAL}
