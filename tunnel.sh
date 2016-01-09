@@ -119,7 +119,7 @@ trap 'killprocs' EXIT
 while true; do
   for pid in "${pids[@]}"; do
     if ! kill -0 ${pid} 2>/dev/null; then
-      echo "Tunnel process ${pid} not running... exiting"
+      echo >&2 "Tunnel process ${pid} not running... exiting"
       exit 1;
     fi
   done
