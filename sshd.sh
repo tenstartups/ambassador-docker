@@ -37,6 +37,7 @@ command="${command} -o GatewayPorts=clientspecified"
 if ! [ "${SSH_USER}" = "root" ]; then
   command="${command} -o PermitRootLogin=no"
 fi
+command="${command} -o PermitTunnel=yes"
 command="${command} -p ${SSH_PORT}"
 
 ${command}
