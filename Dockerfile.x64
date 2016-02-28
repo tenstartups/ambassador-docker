@@ -4,7 +4,7 @@
 # http://github.com/tenstartups/ambassador-docker
 #
 
-FROM alpine:latest
+FROM tenstartups/alpine:latest
 
 MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 
@@ -12,12 +12,11 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 ENV \
   AUTOSSH_VERSION=1.4e \
   SSH_USER=ambassador \
-  SSH_PORT=2222 \
-  TERM=xterm-color
+  SSH_PORT=2222
 
 # Install packages.
 RUN \
-  apk --update add bash build-base nano openssh socat sshpass wget && \
+  apk --update add build-base openssh socat sshpass && \
   rm -rf /var/cache/apk/*
 
 # Compile autossh from source.

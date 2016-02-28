@@ -1,5 +1,4 @@
-Docker Ambassador with SSH Encrypted Tunnel Support
-==
+# Ambassador Docker Image
 
 This is a concrete implementation of the Docker ambassador linking pattern (https://docs.docker.com/articles/ambassador_pattern_linking/) with support for both TCP and SSH encrypted tunnels.
 
