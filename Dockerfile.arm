@@ -1,10 +1,10 @@
 #
 # Docker ambassador pattern linking raspberry pi docker image
 #
-# http://github.com/tenstartups/rpi-ambassador-docker
+# http://github.com/tenstartups/ambassador-docker
 #
 
-FROM tenstartups/rpi-alpine:latest
+FROM tenstartups/alpine:arm
 
 MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 
