@@ -4,7 +4,7 @@
 # http://github.com/tenstartups/ambassador-docker
 #
 
-FROM tenstartups/alpine:arm
+FROM tenstartups/alpine:armhf
 
 MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 
@@ -43,4 +43,4 @@ COPY sshd.sh /usr/local/bin/sshd
 ENTRYPOINT ["/docker-entrypoint"]
 
 # Expose ports.
-EXPOSE 2222
+EXPOSE ${SSH_PORT}
