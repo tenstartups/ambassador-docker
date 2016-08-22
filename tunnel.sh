@@ -11,6 +11,11 @@ BIND_ADDRESS="0.0.0.0"
 # Ensure that autossh doesn't fail even if the initial ssh connection fails
 export AUTOSSH_GATETIME=0
 
+# Ensure that we expand any tunnel specs with variables in them
+while read -r tunnel_spec ; do
+  eval "export ${tunnel_spec}"
+done < <(env | grep -E -e "${TCP_TUNNEL_REGEX}" -e "${SSH_TUNNEL_REGEX}")
+
 # Function to open a TCP tunnel with socat
 tcp_tunnel() {
   tunnel_name=$1
