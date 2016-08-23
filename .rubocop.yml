@@ -1,0 +1,20 @@
+Metrics/LineLength:
+  Max: 120
+
+Style/Documentation:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  MaxLineLength: 120
+
+Style/NumericLiterals:
+  MinDigits: 20
+
+Style/SpaceInsideParens:
+  Enabled: false
+
+Style/WhileUntilModifier:
+  MaxLineLength: 120
+
+AllCops:
+  TargetRubyVersion: 2.3

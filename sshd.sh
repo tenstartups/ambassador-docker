@@ -4,6 +4,7 @@ set -e
 # Set environment variables
 SSH_HOST_KEY_FILE="${SSH_HOST_KEY_FILE:-/keys/host.pem}"
 SSH_AUTHORIZED_KEYS_FILE="${SSH_AUTHORIZED_KEYS_FILE:-/keys/host.pem.pub}"
+SSH_CLIENT_CHECK_INTERVAL=${SSH_CLIENT_CHECK_INTERVAL:-30}
 
 # Create the ssh user if specified
 if ! [ "${SSH_USER}" = "root" ]; then
@@ -33,6 +34,7 @@ command="${command} -h ${SSH_HOST_KEY_FILE}"
 command="${command} -o AllowUsers=${SSH_USER}"
 command="${command} -o AuthorizedKeysFile=${SSH_AUTHORIZED_KEYS_FILE}"
 command="${command} -o ChallengeResponseAuthentication=no"
+command="${command} -o ClientAliveInterval=${SSH_CLIENT_CHECK_INTERVAL}"
 command="${command} -o GatewayPorts=clientspecified"
 if ! [ "${SSH_USER}" = "root" ]; then
   command="${command} -o PermitRootLogin=no"

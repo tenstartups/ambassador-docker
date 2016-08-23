@@ -11,12 +11,20 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 # Set environment variables.
 ENV \
   AUTOSSH_VERSION=1.4e \
+  AUTOSSH_GATETIME=0 \
+  SOCAT_DEBUG_LEVEL=2 \
+  SSH_DEBUG_LEVEL=0 \
   SSH_USER=ambassador \
-  SSH_PORT=2222
+  SSH_PORT=2222 \
+  SSH_SERVER_CHECK_INTERVAL=30 \
+  SSH_CLIENT_CHECK_INTERVAL=30
 
 # Install packages.
 RUN \
-  apk --update add build-base openssh socat sshpass && \
+  apk --update add build-base openssh python3-pip ruby ruby-bigdecimal ruby-json socat sshpass && \
+  pip3 install chaperone && \
+  mkdir -p /etc/chaperone.d && \
+  gem install activesupport awesome_print colorize --no-document && \
   rm -rf /var/cache/apk/*
 
 # Compile autossh from source.
@@ -36,7 +44,7 @@ WORKDIR /root
 
 # Add files to the container.
 COPY entrypoint.sh /docker-entrypoint
-COPY tunnel.sh /usr/local/bin/tunnel
+COPY tunnel.rb /usr/local/bin/tunnel
 COPY sshd.sh /usr/local/bin/sshd
 
 # Set the entrypoint script.
