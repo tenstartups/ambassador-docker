@@ -24,6 +24,9 @@ ENV \
   SSH_SERVER_ALIVE_INTERVAL=30 \
   TUNNEL_BIND_ADDRESS=0.0.0.0
 
+# Start the qemu cross build system
+RUN ["cross-build-start"]
+
 # Install packages.
 RUN \
   apk --update add build-base openssh python3 python3-dev ruby ruby-bigdecimal ruby-json socat sshpass && \
