@@ -25,13 +25,16 @@ ENV \
 # Install packages.
 RUN \
   apk --update add autossh openssh python3 ruby ruby-bigdecimal ruby-json socat sshpass && \
-  pip3 install --upgrade pip && \
-  pip3 install chaperone && \
-  gem install activesupport awesome_print colorize --no-document && \
   rm -rf /var/cache/apk/*
 
-# Install ruby gems.
-RUN gem install activesupport awesome_print colorize --no-document
+# Install ruby libraries.
+RUN \
+  gem install activesupport awesome_print colorize --no-document
+
+# Install python libraries.
+RUN \
+  pip3 install --upgrade pip && \
+  pip3 install chaperone
 
 # Define working directory.
 WORKDIR /root

@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    environment:
+      DOCKERFILE: Dockerfile.armhf
+      DOCKER_IMAGE: tenstartups/ambassador:armhf
+    machine: true
+    steps:
+      - checkout
+      - run: curl https://get.docker.com | sh
+      - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
+      - run: docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE} .
+      - run: docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+      - run: docker push ${DOCKER_IMAGE}
