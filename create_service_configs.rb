@@ -43,7 +43,7 @@ ENV.keys.map { |k| SSH_TUNNEL_REGEX.match("#{k}=#{ENV.fetch(k)}") }.compact.each
   is_reverse = attrs['tunnel_type'] == 'REMOTE'
   command = []
   command += [`which sshpass`.strip, '-p', ENV['SSH_PASSWORD']] if ENV['SSH_PASSWORD']
-  command += [`which autossh`.strip, '-f', '-M', '0', '-T', '-N']
+  command += [`which autossh`.strip, '-M', '0', '-T', '-N']
   command += Array.new(ENV['SSH_DEBUG_LEVEL'].to_i) { '-v' }
   command += ['-o', 'StrictHostKeyChecking=no']
   command += ['-o', 'UserKnownHostsFile=/dev/null']

@@ -11,6 +11,7 @@ MAINTAINER Marc Lennox <marc.lennox@gmail.com>
 # Set environment variables.
 ENV \
   AMBASSADOR_USER=ambassador \
+  AUTOSSH_GATETIME=0 \
   CHAPERONE_CONFIG_DIR=/etc/chaperone.d \
   SOCAT_DEBUG_LEVEL=2 \
   SSH_AUTHORIZED_KEYS_FILE=/keys/host.pem.pub \
