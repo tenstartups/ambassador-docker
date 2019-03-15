@@ -1,14 +1,33 @@
 version: 2
 jobs:
-  build:
+  build_x64:
     environment:
-      DOCKERFILE: Dockerfile.armhf
-      DOCKER_IMAGE: tenstartups/ambassador:armhf
+      DOCKER_IMAGE: tenstartups/ambassador:latest
+      DOCKERFILE: Dockerfile.x64
     machine: true
     steps:
       - checkout
       - run: curl https://get.docker.com | sh
-      - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
-      - run: docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE} .
-      - run: docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+      - run: docker build --file ${DOCKERFILE} --tag ${DOCKER_IMAGE} .
+      - run: docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
       - run: docker push ${DOCKER_IMAGE}
+
+  build_armhf:
+    environment:
+      DOCKER_IMAGE: tenstartups/ambassador:armhf
+      DOCKERFILE: Dockerfile.armhf
+    machine: true
+    steps:
+      - checkout
+      - run: curl https://get.docker.com | sh
+      - run: docker run --rm --privileged multiarch/qemu-user-static:register
+      - run: docker build --file ${DOCKERFILE} --tag ${DOCKER_IMAGE} .
+      - run: docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+      - run: docker push ${DOCKER_IMAGE}
+
+workflows:
+  version: 2
+  build_all:
+    jobs:
+      - build_x64
+      - build_armhf
