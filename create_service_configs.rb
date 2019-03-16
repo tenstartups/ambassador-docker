@@ -14,9 +14,9 @@ command = []
 command << `which sshd`.strip
 command << '-D'
 command += Array.new(ENV['SSH_DEBUG_LEVEL'].to_i) { '-d' }
-command << '-4'
 command += ['-f', '/etc/ssh/sshd_config']
 command += ['-h', ENV['SSH_HOST_KEY_FILE']]
+command += ['-o', 'AllowTcpForwarding=yes']
 command += ['-o', "AllowUsers=#{ENV['AMBASSADOR_USER']}"]
 command += ['-o', "AuthorizedKeysFile=#{ENV['SSH_AUTHORIZED_KEYS_FILE']}"]
 command += ['-o', 'ChallengeResponseAuthentication=no']
