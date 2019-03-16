@@ -14,6 +14,7 @@ command = []
 command << `which sshd`.strip
 command << '-D'
 command += Array.new(ENV['SSH_DEBUG_LEVEL'].to_i) { '-d' }
+command << '-4'
 command += ['-f', '/etc/ssh/sshd_config']
 command += ['-h', ENV['SSH_HOST_KEY_FILE']]
 command += ['-o', "AllowUsers=#{ENV['AMBASSADOR_USER']}"]
@@ -21,6 +22,7 @@ command += ['-o', "AuthorizedKeysFile=#{ENV['SSH_AUTHORIZED_KEYS_FILE']}"]
 command += ['-o', 'ChallengeResponseAuthentication=no']
 command += ['-o', "ClientAliveInterval=#{ENV['SSH_CLIENT_ALIVE_INTERVAL'].to_i}"] if ENV['SSH_CLIENT_ALIVE_INTERVAL']
 command += ['-o', 'GatewayPorts=clientspecified']
+command += ['-o', "ListenAddress=#{ENV['TUNNEL_BIND_ADDRESS']}"]
 command += ['-o', 'PermitRootLogin=no'] unless ENV['AMBASSADOR_USER'] == 'root'
 command += ['-o', 'PermitTunnel=yes']
 command += ['-p', ENV['SSH_LISTEN_PORT']]
