@@ -9,24 +9,25 @@ SSH_TUNNEL_REGEX = /^\s*(?<tunnel_name>SSH_((?<tunnel_type>REMOTE|LOCAL)_)?TUNNE
 services = []
 
 # Create SSH daemon service configurations
-# Construct the sshd command
-command = []
-command << `which sshd`.strip
-command << '-D'
-command += Array.new(ENV['SSH_DEBUG_LEVEL'].to_i) { '-d' }
-command += ['-f', '/etc/ssh/sshd_config']
-command += ['-h', ENV['SSH_HOST_KEY_FILE']]
-command += ['-o', 'AllowTcpForwarding=yes']
-command += ['-o', "AllowUsers=#{ENV['AMBASSADOR_USER']}"]
-command += ['-o', "AuthorizedKeysFile=#{ENV['SSH_AUTHORIZED_KEYS_FILE']}"]
-command += ['-o', 'ChallengeResponseAuthentication=no']
-command += ['-o', "ClientAliveInterval=#{ENV['SSH_CLIENT_ALIVE_INTERVAL'].to_i}"] if ENV['SSH_CLIENT_ALIVE_INTERVAL']
-command += ['-o', 'GatewayPorts=clientspecified']
-command += ['-o', "ListenAddress=#{ENV['TUNNEL_BIND_ADDRESS']}"]
-command += ['-o', 'PermitRootLogin=no'] unless ENV['AMBASSADOR_USER'] == 'root'
-command += ['-o', 'PermitTunnel=yes']
-command += ['-p', ENV['SSH_LISTEN_PORT']]
-services << { service_name: 'sshd.service', service_command: command.join(' ') }
+if ENV['START_SSH_DAEMON'] == 'yes'
+  command = []
+  command << `which sshd`.strip
+  command << '-D'
+  command += Array.new(ENV['SSH_DEBUG_LEVEL'].to_i) { '-d' }
+  command += ['-f', '/etc/ssh/sshd_config']
+  command += ['-h', ENV['SSH_HOST_KEY_FILE']]
+  command += ['-o', 'AllowTcpForwarding=yes']
+  command += ['-o', "AllowUsers=#{ENV['AMBASSADOR_USER']}"]
+  command += ['-o', "AuthorizedKeysFile=#{ENV['SSH_AUTHORIZED_KEYS_FILE']}"]
+  command += ['-o', 'ChallengeResponseAuthentication=no']
+  command += ['-o', "ClientAliveInterval=#{ENV['SSH_CLIENT_ALIVE_INTERVAL'].to_i}"] if ENV['SSH_CLIENT_ALIVE_INTERVAL']
+  command += ['-o', 'GatewayPorts=clientspecified']
+  command += ['-o', "ListenAddress=#{ENV['TUNNEL_BIND_ADDRESS']}"]
+  command += ['-o', 'PermitRootLogin=no'] unless ENV['AMBASSADOR_USER'] == 'root'
+  command += ['-o', 'PermitTunnel=yes']
+  command += ['-p', ENV['SSH_LISTEN_PORT']]
+  services << { service_name: 'sshd.service', service_command: command.join(' ') }
+end
 
 # Create TCP tunnel service configurations
 ENV.keys.map { |k| TCP_TUNNEL_REGEX.match("#{k}=#{ENV.fetch(k)}") }.compact.each do |match|

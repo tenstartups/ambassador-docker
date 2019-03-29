@@ -8,7 +8,7 @@ if [ "${AMBASSADOR_USER}" != "root" ]; then
 fi
 
 # Generate an SSH key if none is present
-if ! [ -f "${SSH_HOST_KEY_FILE}" ]; then
+if [ "${START_SSH_DAEMON}" = "yes" ] && ! [ -f "${SSH_HOST_KEY_FILE}" ]; then
   mkdir -p "`dirname ${SSH_HOST_KEY_FILE}`"
   ssh-keygen -t rsa -b 4096 -f "${SSH_HOST_KEY_FILE}" -N '' -C ''
 fi
